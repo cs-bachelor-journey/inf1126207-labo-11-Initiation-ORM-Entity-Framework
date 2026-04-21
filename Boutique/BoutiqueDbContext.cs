@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Boutique
 {
-    class BoutiqueDbContext : DbContext
+    public class BoutiqueDbContext : DbContext
     {
         public DbSet<Utilisateur> Utilisateurs { get; set; }
         public DbSet<Produit> Produits { get; set; }
