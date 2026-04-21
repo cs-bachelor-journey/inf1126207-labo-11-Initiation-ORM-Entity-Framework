@@ -25,8 +25,11 @@ namespace Boutique.Services
 
             _db.SaveChanges();
         }
+        public Utilisateur? FindById(int id)
+        {
+            return _db.Utilisateurs.Find(id);
 
-        
+        }
 
     }
 }
