@@ -5,6 +5,7 @@ using Boutique.Services;
 var dbContext = new BoutiqueDbContext();
 var userServices = new UserService(dbContext);
 var productServices = new ProductService(dbContext);
+var commandeService = new CommandeService(dbContext);
 
 // Adding users to the db 
 (string Nom, string Email)[] users =
@@ -116,3 +117,68 @@ else
     Console.WriteLine(line);
 }
 
+
+// Create sample commandes
+var seededUsers = userServices.GetAll().OrderBy(u => u.Id).ToList();
+var seededProducts = productServices.GetAll().OrderBy(p => p.Id).ToList();
+
+if (seededUsers.Count >= 2 && seededProducts.Count >= 4)
+{
+    commandeService.Create(seededUsers[0].Id,
+    [
+        (seededProducts[0].Id, 1),
+        (seededProducts[1].Id, 2)
+    ]);
+
+    commandeService.Create(seededUsers[0].Id,
+    [
+        (seededProducts[2].Id, 1)
+    ]);
+
+    commandeService.Create(seededUsers[1].Id,
+    [
+        (seededProducts[1].Id, 1),
+        (seededProducts[3].Id, 3)
+    ]);
+}
+
+// List all commandes
+Console.WriteLine("\nList of all commandes");
+var allCommandes = commandeService.GetAll();
+
+if (allCommandes.Count == 0)
+{
+    Console.WriteLine("No Commandes Found");
+}
+else
+{
+    foreach (var c in allCommandes)
+    {
+        Console.WriteLine($"\nCommande #{c.Id} | Date: {c.Date:yyyy-MM-dd HH:mm} | User: {c.Utilisateur?.Nom} (Id={c.UtilisateurId})");
+        foreach (var cp in c.CommandeProduits)
+        {
+            Console.WriteLine($"  - Produit: {cp.Produit?.Nom} | Quantité: {cp.Quantite}");
+        }
+    }
+}
+
+// List commandes of a specific user
+if (seededUsers.Count > 0)
+{
+    int userId = seededUsers[0].Id;
+    Console.WriteLine($"\nCommandes for user Id={userId} ({seededUsers[0].Nom})");
+
+    var userCommandes = commandeService.GetByUtilisateurId(userId);
+
+    if (userCommandes.Count == 0)
+    {
+        Console.WriteLine("No Commandes Found for this user");
+    }
+    else
+    {
+        foreach (var c in userCommandes)
+        {
+            Console.WriteLine($"- Commande #{c.Id} | Date: {c.Date:yyyy-MM-dd HH:mm} | Lignes: {c.CommandeProduits.Count}");
+        }
+    }
+}
